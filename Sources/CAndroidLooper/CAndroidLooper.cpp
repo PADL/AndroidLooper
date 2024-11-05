@@ -37,17 +37,35 @@ static std::mutex CAndroidLooper_mutex;
 static int CAndroidLooper_callbackFunc(int fd, int events, void *data) {
   CAndroidLooperCallbackBlock block =
       reinterpret_cast<CAndroidLooperCallbackBlock>(data);
+
   block();
+
   return 1;
+}
+
+static int CAndroidLooper_callbackFuncOneShot(int fd, int events, void *data) {
+  CAndroidLooperCallbackBlock block =
+      reinterpret_cast<CAndroidLooperCallbackBlock>(data);
+
+  if (block) {
+    block();
+    _Block_release(block);
+  }
+
+  return 0;
 }
 
 int CAndroidLooper_setBlock(ALooper *looper,
                             int fd,
-                            CAndroidLooperCallbackBlock block) {
+                            CAndroidLooperCallbackBlock block,
+                            bool oneShot) {
   std::lock_guard<std::mutex> guard(CAndroidLooper_mutex);
   int err;
 
-  if (block) {
+  if (oneShot) {
+    err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
+                        CAndroidLooper_callbackFuncOneShot, block);
+  } else if (block) {
     err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
                         CAndroidLooper_callbackFunc, block);
     if (err == 1)

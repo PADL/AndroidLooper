@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include <android/looper.h>
 
 #ifdef __cplusplus
@@ -25,12 +27,18 @@ extern "C" {
 typedef __attribute__((__swift_attr__("@Sendable"))) void (
     ^CAndroidLooperCallbackBlock)(void);
 
+/// register a block to be invoked when the file descriptor is signalled. if
+/// oneShot is true, then the block is invoked once and removed; otherwise, it is
+/// invoked each time the fd is signalled.
 int CAndroidLooper_setBlock(ALooper *_Nonnull looper,
                             int fd,
-                            _Nullable CAndroidLooperCallbackBlock block);
+                            _Nullable CAndroidLooperCallbackBlock block,
+                            bool oneShot);
 
+/// logging helper, to be removed
 void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg);
 
+/// return the looper that was registered when the library was loaded
 ALooper *_Nullable CAndroidLooper_getMainLooper(void);
 
 #ifdef __cplusplus

@@ -62,8 +62,8 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     ALooper_release(_looper)
   }
 
-  public func set(fd: FileDescriptor, _ block: Block?) throws {
-    if CAndroidLooper_setBlock(_looper, fd.rawValue, block) < 0 {
+  public func set(fd: FileDescriptor, _ block: Block?, oneShot: Bool = false) throws {
+    if CAndroidLooper_setBlock(_looper, fd.rawValue, block, oneShot) < 0 {
       throw LooperError.setBlockFailure
     }
   }
