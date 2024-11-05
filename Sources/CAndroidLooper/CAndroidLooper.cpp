@@ -41,8 +41,6 @@ static int CAndroidLooper_callbackFunc(int fd, int events, void *data) {
   return 1;
 }
 
-typedef int (*ALooper_callbackFunc)(int fd, int events, void *data);
-
 int CAndroidLooper_setBlock(ALooper *looper,
                             int fd,
                             CAndroidLooperCallbackBlock block) {
