@@ -28,8 +28,8 @@ typedef __attribute__((__swift_attr__("@Sendable"))) void (
     ^CAndroidLooperCallbackBlock)(void);
 
 /// register a block to be invoked when the file descriptor is signalled. if
-/// oneShot is true, then the block is invoked once and removed; otherwise, it is
-/// invoked each time the fd is signalled.
+/// oneShot is true, then the block is invoked once and removed; otherwise, it
+/// is invoked each time the fd is signalled.
 int CAndroidLooper_setBlock(ALooper *_Nonnull looper,
                             int fd,
                             _Nullable CAndroidLooperCallbackBlock block,

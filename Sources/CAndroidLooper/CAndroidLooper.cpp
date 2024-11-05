@@ -28,7 +28,9 @@
 
 extern "C" {
 static int CAndroidLooper_callbackFunc(int fd, int events, void *data);
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved);
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *pJavaVM, void *pReserved);
 }
 
 static std::map<int, Block<void>> CAndroidLooper_blocks{};
@@ -100,4 +102,14 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
   ALooper_acquire(CAndroidLooper_mainLooper);
 
   return JNI_VERSION_1_6;
+}
+
+JNIEXPORT void JNI_OnUnload(JavaVM *pJavaVM, void *pReserved) {
+  if (CAndroidLooper_mainLooper) {
+    ALooper_release(CAndroidLooper_mainLooper);
+    CAndroidLooper_mainLooper = nullptr;
+  }
+
+  std::lock_guard<std::mutex> guard(CAndroidLooper_mutex);
+  CAndroidLooper_blocks.clear();
 }
