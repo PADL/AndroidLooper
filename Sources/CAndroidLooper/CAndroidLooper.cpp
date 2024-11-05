@@ -102,6 +102,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
   CAndroidLooper_mainLooper = ALooper_forThread();
   ALooper_acquire(CAndroidLooper_mainLooper);
 
+  CAndroidLooper_log(nullptr, "loaded");
   return JNI_VERSION_1_6;
 }
 
@@ -113,4 +114,6 @@ JNIEXPORT void JNI_OnUnload(JavaVM *pJavaVM, void *pReserved) {
 
   std::lock_guard<std::mutex> guard(CAndroidLooper_mutex);
   CAndroidLooper_blocks.clear();
+
+  CAndroidLooper_log(nullptr, "unloaded");
 }
