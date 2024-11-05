@@ -31,23 +31,8 @@ static int CAndroidLooper_callbackFunc(int fd, int events, void *data);
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved);
 }
 
-static ALooper *CAndroidLooper_uiThread;
 static std::map<int, Block<void>> CAndroidLooper_blocks{};
 static std::mutex CAndroidLooper_mutex;
-
-// FIXME: assumes that library is always loaded on the UI thread
-
-__attribute__((__constructor__)) static void CAndroidLooper_init(void) {
-  CAndroidLooper_uiThread = ALooper_forThread();
-  ALooper_acquire(CAndroidLooper_uiThread);
-}
-
-__attribute__((__destructor__)) static void CAndroidLooper_deinit(void) {
-  if (CAndroidLooper_uiThread) {
-    ALooper_release(CAndroidLooper_uiThread);
-    CAndroidLooper_uiThread = nullptr;
-  }
-}
 
 static int CAndroidLooper_callbackFunc(int fd, int events, void *data) {
   CAndroidLooperCallbackBlock block =
