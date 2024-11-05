@@ -28,7 +28,6 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
       return nil
     }
     _looper = looper
-    let r = _looper.wake()
     do {
       try _looper.set(fd: _eventFd) { self.drain() }
     } catch {
