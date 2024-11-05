@@ -27,7 +27,8 @@
 #include "CAndroidLooper.h"
 
 extern "C" {
-static int CAndroidLooper_callbackFunc(int fd, int events, void *data);
+static int CAndroidLooper_callbackThunk(int fd, int events, void *data);
+static int CAndroidLooper_callbackThunkOneShot(int fd, int events, void *data);
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved);
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *pJavaVM, void *pReserved);
@@ -36,7 +37,7 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *pJavaVM, void *pReserved);
 static std::map<int, Block<void>> CAndroidLooper_blocks{};
 static std::mutex CAndroidLooper_mutex;
 
-static int CAndroidLooper_callbackFunc(int fd, int events, void *data) {
+static int CAndroidLooper_callbackThunk(int fd, int events, void *data) {
   CAndroidLooperCallbackBlock block =
       reinterpret_cast<CAndroidLooperCallbackBlock>(data);
 
@@ -45,7 +46,7 @@ static int CAndroidLooper_callbackFunc(int fd, int events, void *data) {
   return 1;
 }
 
-static int CAndroidLooper_callbackFuncOneShot(int fd, int events, void *data) {
+static int CAndroidLooper_callbackThunkOneShot(int fd, int events, void *data) {
   CAndroidLooperCallbackBlock block =
       reinterpret_cast<CAndroidLooperCallbackBlock>(data);
 
@@ -66,10 +67,10 @@ int CAndroidLooper_setBlock(ALooper *looper,
 
   if (oneShot) {
     err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-                        CAndroidLooper_callbackFuncOneShot, block);
+                        CAndroidLooper_callbackThunkOneShot, block);
   } else if (block) {
     err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-                        CAndroidLooper_callbackFunc, block);
+                        CAndroidLooper_callbackThunk, block);
     if (err == 1)
       CAndroidLooper_blocks.emplace(std::make_pair(fd, Block(block)));
   } else {
