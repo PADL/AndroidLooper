@@ -39,8 +39,7 @@ static std::map<int, Block<void>> CAndroidLooper_blocks{};
 static std::mutex CAndroidLooper_mutex;
 
 static int CAndroidLooper_callbackThunk(int fd, int events, void *data) {
-  CAndroidLooperCallbackBlock block =
-      reinterpret_cast<CAndroidLooperCallbackBlock>(data);
+  auto block = reinterpret_cast<CAndroidLooperCallbackBlock>(data);
 
   block();
 
@@ -48,8 +47,7 @@ static int CAndroidLooper_callbackThunk(int fd, int events, void *data) {
 }
 
 static int CAndroidLooper_callbackThunkOneShot(int fd, int events, void *data) {
-  CAndroidLooperCallbackBlock block =
-      reinterpret_cast<CAndroidLooperCallbackBlock>(data);
+  auto block = reinterpret_cast<CAndroidLooperCallbackBlock>(data);
 
   if (block) {
     block();
