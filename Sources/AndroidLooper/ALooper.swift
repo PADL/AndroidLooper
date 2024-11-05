@@ -33,6 +33,22 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     case pollError
   }
 
+  public struct Events: OptionSet, Sendable {
+    public typealias RawValue = CInt
+
+    public let rawValue: RawValue
+
+    public init(rawValue: RawValue) {
+      self.rawValue = rawValue
+    }
+
+    public static let input = Events(rawValue: 1 << 0)
+    public static let output = Events(rawValue: 1 << 1)
+    public static let error = Events(rawValue: 1 << 2)
+    public static let hangup = Events(rawValue: 1 << 3)
+    public static let invalid = Events(rawValue: 1 << 4)
+  }
+
   public typealias Block = @Sendable () -> ()
 
   private let _looper: OpaquePointer
@@ -75,7 +91,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   public struct PollResult {
     let ident: CInt
     let fd: CInt
-    let events: CInt
+    let events: Events
     let data: UnsafeRawPointer?
   }
 
@@ -96,7 +112,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     case ALOOPER_POLL_ERROR:
       throw LooperError.pollError
     default:
-      return PollResult(ident: err, fd: outFd, events: outEvents, data: outData)
+      return PollResult(ident: err, fd: outFd, events: Events(rawValue: outEvents), data: outData)
     }
   }
 
