@@ -36,7 +36,7 @@ public final actor UIThreadActor: GlobalActor {
   private static let _executor = UIThreadExecutor()
 
   public static let shared = UIThreadActor()
-  static let sharedUnownedExecutor: UnownedSerialExecutor = UIThreadActor._executor
+  public static let sharedUnownedExecutor: UnownedSerialExecutor = UIThreadActor._executor
     .asUnownedSerialExecutor()
 
   public nonisolated var unownedExecutor: UnownedSerialExecutor {
