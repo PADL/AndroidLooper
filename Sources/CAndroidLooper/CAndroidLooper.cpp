@@ -41,7 +41,9 @@ static std::mutex CAndroidLooper_mutex;
 static int CAndroidLooper_callbackThunk(int fd, int events, void *data) {
   auto block = reinterpret_cast<CAndroidLooperCallbackBlock>(data);
 
+  _Block_copy(block);
   block();
+  _Block_release(block);
 
   return 1;
 }
