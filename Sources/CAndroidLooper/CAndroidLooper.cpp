@@ -67,8 +67,9 @@ int CAndroidLooper_setBlock(ALooper *looper,
   int err;
 
   if (oneShot) {
-    err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-                        CAndroidLooper_callbackThunkOneShot, _Block_copy(block));
+    err =
+        ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
+                      CAndroidLooper_callbackThunkOneShot, _Block_copy(block));
   } else if (block) {
     err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
                         CAndroidLooper_callbackThunk, block);
@@ -85,20 +86,29 @@ int CAndroidLooper_setBlock(ALooper *looper,
 
 void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg) {
   if (looper)
-    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "thread %ld looper %p -- %s",
-                        pthread_self(), looper, msg);
+    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper",
+                        "thread %ld looper %p -- %s", pthread_self(), looper,
+                        msg);
   else
     __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "thread %ld -- %s",
                         pthread_self(), msg);
 }
 
 static ALooper *_Nullable CAndroidLooper_mainLooper;
+static JNIEnv *_Nullable CAndroidLooper_mainEnvironment;
 
 ALooper *_Nullable CAndroidLooper_getMainLooper(void) {
   return CAndroidLooper_mainLooper;
 }
 
+JNIEnv *_Nullable CAndroidLooper_getMainEnvironment(void) {
+  return CAndroidLooper_mainEnvironment;
+}
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
+  jvm->GetEnv(reinterpret_cast<void **>(&CAndroidLooper_mainEnvironment),
+              JNI_VERSION_1_6);
+
   if (CAndroidLooper_mainLooper)
     ALooper_release(CAndroidLooper_mainLooper);
   CAndroidLooper_mainLooper = ALooper_forThread();
@@ -116,6 +126,8 @@ JNIEXPORT void JNI_OnUnload(JavaVM *pJavaVM, void *pReserved) {
 
   std::lock_guard<std::mutex> guard(CAndroidLooper_mutex);
   CAndroidLooper_blocks.clear();
+
+  CAndroidLooper_mainEnvironment = nullptr;
 
   CAndroidLooper_log(nullptr, "unloaded");
 }

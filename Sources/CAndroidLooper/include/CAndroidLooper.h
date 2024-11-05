@@ -41,6 +41,9 @@ void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg);
 /// return the looper that was registered when the library was loaded
 ALooper *_Nullable CAndroidLooper_getMainLooper(void);
 
+/// return the JNI environment that was present when the library was loaded
+JNIEnv *_Nullable CAndroidLooper_getMainEnvironment(void);
+
 #ifdef __cplusplus
 }
 #endif
