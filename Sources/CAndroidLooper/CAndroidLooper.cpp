@@ -68,7 +68,7 @@ int CAndroidLooper_setBlock(ALooper *looper,
 
   if (oneShot) {
     err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-                        CAndroidLooper_callbackThunkOneShot, block);
+                        CAndroidLooper_callbackThunkOneShot, _Block_copy(block));
   } else if (block) {
     err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
                         CAndroidLooper_callbackThunk, block);
