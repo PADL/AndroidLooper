@@ -18,11 +18,19 @@ import Android
 import CAndroidLooper
 import SystemPackage
 
+private extension Duration {
+  var milliseconds: Double {
+    Double(components.seconds) * 1000 + Double(components.attoseconds) * 1e-15
+  }
+}
+
 public struct ALooper: ~Copyable, @unchecked Sendable {
   public enum LooperError: Error {
     case setBlockFailure
     case removeBlockFailure
     case preparationFailure(CInt)
+    case pollTimeout
+    case pollError
   }
 
   public typealias Block = @Sendable () -> ()
@@ -62,6 +70,34 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
       throw LooperError.removeBlockFailure
     }
     return ret == 1
+  }
+
+  public struct PollResult {
+    let ident: CInt
+    let fd: CInt
+    let events: CInt
+    let data: UnsafeRawPointer?
+  }
+
+  public static func pollOnce(duration: Duration? = nil) throws -> PollResult? {
+    var outFd: CInt = -1
+    var outEvents: CInt = 0
+    var outData: UnsafeMutableRawPointer?
+
+    let timeoutMillis = CInt(duration?.milliseconds ?? 0)
+    let err = ALooper_pollOnce(timeoutMillis, &outFd, &outEvents, &outData)
+    switch Int(err) {
+    case ALOOPER_POLL_WAKE:
+      fallthrough
+    case ALOOPER_POLL_CALLBACK:
+      return nil
+    case ALOOPER_POLL_TIMEOUT:
+      throw LooperError.pollTimeout
+    case ALOOPER_POLL_ERROR:
+      throw LooperError.pollError
+    default:
+      return PollResult(ident: err, fd: outFd, events: outEvents, data: outData)
+    }
   }
 
   func log(_ msg: String) {
