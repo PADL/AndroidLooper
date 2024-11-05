@@ -16,13 +16,15 @@
 
 import Android
 import CAndroidLooper
-
-public enum ALooperError: Error {
-  case initializationFailure
-  case enqueueJobFailure
-}
+import SystemPackage
 
 public struct ALooper: ~Copyable, @unchecked Sendable {
+  public enum LooperError: Error {
+    case setBlockFailure
+    case removeBlockFailure
+    case preparationFailure(CInt)
+  }
+
   public typealias Block = @Sendable () -> ()
 
   private let _looper: OpaquePointer
@@ -36,15 +38,15 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     ALooper_release(_looper)
   }
 
-  public func set(fd: CInt, _ block: Block?) throws {
-    if CAndroidLooper_setBlock(_looper, fd, block) < 0 {
-      throw ALooperError.initializationFailure
+  public func set(fd: FileDescriptor, _ block: Block?) throws {
+    if CAndroidLooper_setBlock(_looper, fd.rawValue, block) < 0 {
+      throw LooperError.setBlockFailure
     }
   }
 
   public static func prepare(opts: CInt) throws -> Self {
     guard let looper = ALooper_prepare(opts) else {
-      throw ALooperError.initializationFailure
+      throw LooperError.preparationFailure(opts)
     }
     return ALooper(wrapping: looper)
   }
@@ -54,10 +56,10 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   }
 
   @discardableResult
-  public func remove(fd: CInt) throws -> Bool {
-    let ret = ALooper_removeFd(_looper, fd)
+  public func remove(fd: FileDescriptor) throws -> Bool {
+    let ret = ALooper_removeFd(_looper, fd.rawValue)
     if ret < 0 {
-      throw ALooperError.initializationFailure
+      throw LooperError.removeBlockFailure
     }
     return ret == 1
   }

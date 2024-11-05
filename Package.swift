@@ -13,6 +13,9 @@ let package = Package(
       targets: ["AndroidLooper"]
     ),
   ],
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-system", from: "1.4.0"),
+  ],
   targets: [
     .target(
       name: "CAndroidLooper",
@@ -20,7 +23,10 @@ let package = Package(
     ),
     .target(
       name: "AndroidLooper",
-      dependencies: ["CAndroidLooper"]
+      dependencies: [
+        "CAndroidLooper",
+        .product(name: "SystemPackage", package: "swift-system"),
+      ]
     ),
   ]
 )
