@@ -23,6 +23,7 @@
 
 #include <android/log.h>
 #include <jni.h>
+#include <pthread.h>
 
 #include "CAndroidLooper.h"
 
@@ -84,10 +85,11 @@ int CAndroidLooper_setBlock(ALooper *looper,
 
 void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg) {
   if (looper)
-    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "[%p] %s\n",
-                        looper, msg);
+    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "thread %ld looper %p -- %s",
+                        pthread_self(), looper, msg);
   else
-    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "%s\n", msg);
+    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "thread %ld -- %s",
+                        pthread_self(), msg);
 }
 
 static ALooper *_Nullable CAndroidLooper_mainLooper;
