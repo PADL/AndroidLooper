@@ -31,8 +31,12 @@ public final class UIThreadExecutor: AExecutor, @unchecked Sendable {
 
 @globalActor
 public final actor UIThreadActor: GlobalActor {
+  // ensure executor is retained to avoid crash
+  // https://forums.swift.org/t/how-to-properly-use-custom-executor-on-global-actor/71829/4
+  private static let _executor = UIThreadExecutor()
+
   public static let shared = UIThreadActor()
-  public static let sharedUnownedExecutor: UnownedSerialExecutor = UIThreadExecutor()
+  static let sharedUnownedExecutor: UnownedSerialExecutor = UIThreadActor._executor
     .asUnownedSerialExecutor()
 
   public nonisolated var unownedExecutor: UnownedSerialExecutor {
