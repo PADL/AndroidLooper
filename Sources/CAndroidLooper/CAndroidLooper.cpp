@@ -16,71 +16,15 @@
 
 #include <unistd.h>
 
-#include <map>
-#include <mutex>
-
-#include "Block.hpp"
-
-#include <android/log.h>
 #include <jni.h>
 #include <pthread.h>
+#include <android/log.h>
 
 #include "CAndroidLooper.h"
 
 extern "C" {
-static int CAndroidLooper_callbackThunk(int fd, int events, void *data);
-static int CAndroidLooper_callbackThunkOneShot(int fd, int events, void *data);
-
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved);
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *pJavaVM, void *pReserved);
-}
-
-static std::map<int, Block<void>> CAndroidLooper_blocks{};
-static std::mutex CAndroidLooper_mutex;
-
-static int CAndroidLooper_callbackThunk(int fd, int events, void *data) {
-  auto block = reinterpret_cast<CAndroidLooperCallbackBlock>(data);
-
-  if (block)
-    block();
-
-  return 1;
-}
-
-static int CAndroidLooper_callbackThunkOneShot(int fd, int events, void *data) {
-  auto block = reinterpret_cast<CAndroidLooperCallbackBlock>(data);
-
-  if (block) {
-    block();
-    _Block_release(block);
-  }
-
-  return 0;
-}
-
-int CAndroidLooper_setBlock(ALooper *looper,
-                            int fd,
-                            CAndroidLooperCallbackBlock block,
-                            bool oneShot) {
-  std::lock_guard<std::mutex> guard(CAndroidLooper_mutex);
-  int err;
-
-  if (oneShot) {
-    err =
-        ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-                      CAndroidLooper_callbackThunkOneShot, _Block_copy(block));
-  } else if (block) {
-    err = ALooper_addFd(looper, fd, ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-                        CAndroidLooper_callbackThunk, block);
-    if (err == 1)
-      CAndroidLooper_blocks.emplace(std::make_pair(fd, Block(block)));
-  } else {
-    err = ALooper_removeFd(looper, fd);
-    if (err == 1)
-      CAndroidLooper_blocks.erase(fd);
-  }
-
-  return err;
 }
 
 void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg) {
@@ -122,9 +66,6 @@ JNIEXPORT void JNI_OnUnload(JavaVM *pJavaVM, void *pReserved) {
     ALooper_release(CAndroidLooper_mainLooper);
     CAndroidLooper_mainLooper = nullptr;
   }
-
-  std::lock_guard<std::mutex> guard(CAndroidLooper_mutex);
-  CAndroidLooper_blocks.clear();
 
   CAndroidLooper_mainEnvironment = nullptr;
 

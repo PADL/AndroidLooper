@@ -18,6 +18,12 @@ import Android
 import CAndroidLooper
 import SystemPackage
 
+private func AExecutor_thunk(fd: CInt, events: CInt, data: UnsafeMutableRawPointer?) -> CInt {
+  let executor = Unmanaged<AExecutor>.fromOpaque(data!).takeUnretainedValue()
+  executor.drain()
+  return 1
+}
+
 // Swift structured concurrency executor that enqueues jobs on an Android
 // Looper.
 open class AExecutor: SerialExecutor, @unchecked Sendable {
@@ -34,7 +40,11 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
     _eventFd = FileDescriptor(rawValue: fd)
     _looper = looper
     do {
-      try _looper.set(fd: _eventFd) { self.drain() }
+      try _looper.add(
+        fd: _eventFd,
+        callback: AExecutor_thunk,
+        data: Unmanaged.passUnretained(self).toOpaque()
+      )
     } catch {
       try? _eventFd.close()
       return nil
@@ -43,7 +53,7 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
 
   deinit {
     if _eventFd.rawValue != -1 {
-      try? _looper.set(fd: _eventFd, nil)
+      _ = try? _looper.remove(fd: _eventFd)
       try? _eventFd.close()
     }
   }
@@ -77,7 +87,7 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
   }
 
   /// Drain job queue
-  private func drain() {
+  fileprivate func drain() {
     let eventsRemaining = eventsRemaining
     for _ in 0..<eventsRemaining {
       let job = dequeue()

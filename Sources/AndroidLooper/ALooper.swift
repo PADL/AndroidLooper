@@ -50,6 +50,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   }
 
   public typealias Block = @Sendable () -> ()
+  public typealias Callback = @convention(c) (CInt, CInt, UnsafeMutableRawPointer?) -> CInt
 
   private let _looper: OpaquePointer
 
@@ -62,8 +63,21 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     ALooper_release(_looper)
   }
 
-  public func set(fd: FileDescriptor, _ block: Block?, oneShot: Bool = false) throws {
-    if CAndroidLooper_setBlock(_looper, fd.rawValue, block, oneShot) < 0 {
+  public func add(
+    fd: FileDescriptor,
+    ident: CInt = 0,
+    events: Events = .input,
+    callback: Callback? = nil,
+    data: UnsafeMutableRawPointer? = nil
+  ) throws {
+    if ALooper_addFd(
+      _looper,
+      fd.rawValue,
+      callback != nil ? CInt(ALOOPER_POLL_CALLBACK) : ident,
+      events.rawValue,
+      callback,
+      data
+    ) != 1 {
       throw LooperError.setBlockFailure
     }
   }
