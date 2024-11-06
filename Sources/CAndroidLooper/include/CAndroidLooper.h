@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <android/looper.h>
 
 #ifdef __cplusplus
 extern "C" {

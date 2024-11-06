@@ -17,6 +17,7 @@
 #include <cstring>
 
 #include <pthread.h>
+#include <android/looper.h>
 #include <android/log.h>
 
 #include "CAndroidLooper.h"
