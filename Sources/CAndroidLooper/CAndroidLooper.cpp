@@ -113,7 +113,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
   CAndroidLooper_mainLooper = ALooper_forThread();
   ALooper_acquire(CAndroidLooper_mainLooper);
 
-  CAndroidLooper_log(nullptr, "loaded");
+  CAndroidLooper_log(nullptr, "loaded Swift AndroidLooper library");
   return JNI_VERSION_1_6;
 }
 
@@ -128,5 +128,5 @@ JNIEXPORT void JNI_OnUnload(JavaVM *pJavaVM, void *pReserved) {
 
   CAndroidLooper_mainEnvironment = nullptr;
 
-  CAndroidLooper_log(nullptr, "unloaded");
+  CAndroidLooper_log(nullptr, "unloaded Swift AndroidLooper library");
 }
