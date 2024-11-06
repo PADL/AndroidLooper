@@ -46,7 +46,7 @@ public final actor UIThreadActor: GlobalActor {
 }
 
 public extension JavaVirtualMachine {
-  var mainEnvironment: JNIEnvironment? {
+  static var mainEnvironment: JNIEnvironment? {
     CAndroidLooper_getMainEnvironment()
   }
 }
