@@ -19,6 +19,7 @@
 #include <stdbool.h>
 
 #include <android/looper.h>
+#include <jni.h>
 
 #ifdef __cplusplus
 extern "C" {
