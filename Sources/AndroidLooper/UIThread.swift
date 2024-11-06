@@ -50,3 +50,7 @@ public extension JavaVirtualMachine {
     CAndroidLooper_getMainEnvironment()
   }
 }
+
+public func _getJNIClassUsingMainEnvironment(_ className: String) -> jclass? {
+  CAndroidLooper_findClass(JavaVirtualMachine.mainEnvironment!, className)
+}

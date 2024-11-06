@@ -45,6 +45,9 @@ ALooper *_Nullable CAndroidLooper_getMainLooper(void);
 /// return the JNI environment that was present when the library was loaded
 JNIEnv *_Nullable CAndroidLooper_getMainEnvironment(void);
 
+_Nullable jclass CAndroidLooper_findClass(JNIEnv *_Nonnull jniEnv,
+                                          const char *_Nonnull className);
+
 #ifdef __cplusplus
 }
 #endif
