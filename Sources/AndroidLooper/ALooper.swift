@@ -15,6 +15,7 @@
 //
 
 import Android
+import AndroidLogging
 import CAndroidLooper
 import SystemPackage
 
@@ -53,6 +54,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   public typealias Callback = @convention(c) (CInt, CInt, UnsafeMutableRawPointer?) -> CInt
 
   private let _looper: OpaquePointer
+  private let _logger = Logger(subsystem: "AndroidLooper", category: "")
 
   public init(wrapping looper: OpaquePointer) {
     ALooper_acquire(looper)
@@ -131,6 +133,6 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   }
 
   func log(_ msg: String) {
-    CAndroidLooper_log(_looper, msg)
+    _logger.debug(msg)
   }
 }

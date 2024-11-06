@@ -16,16 +16,4 @@
 
 #pragma once
 
-#include <stdbool.h>
 #include <android/looper.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/// logging helper, to be removed
-void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg);
-
-#ifdef __cplusplus
-}
-#endif

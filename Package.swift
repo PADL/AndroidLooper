@@ -18,6 +18,10 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-system", from: "1.4.0"),
+    .package(
+      url: "https://github.com/skiptools/swift-android-native",
+      branch: "main"
+    ),
   ],
   targets: [
     .target(
@@ -29,6 +33,7 @@ let package = Package(
       dependencies: [
         "CAndroidLooper",
         .product(name: "SystemPackage", package: "swift-system"),
+        .product(name: "AndroidLogging", package: "swift-android-native"),
       ],
       swiftSettings: [.swiftLanguageMode(.v5)]
     ),

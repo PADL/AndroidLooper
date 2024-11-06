@@ -17,7 +17,7 @@
 import Android
 import CAndroidLooper
 
-private var _mainLooper: OpaquePointer? = nil
+private var _mainLooper: OpaquePointer?
 
 public extension ALooper {
   static var sharedUIThreadLooper: Self {

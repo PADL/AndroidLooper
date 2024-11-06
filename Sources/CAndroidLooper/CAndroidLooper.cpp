@@ -14,20 +14,4 @@
 // limitations under the License.
 //
 
-#include <cstring>
-
-#include <pthread.h>
-#include <android/looper.h>
-#include <android/log.h>
-
 #include "CAndroidLooper.h"
-
-void CAndroidLooper_log(ALooper *_Nullable looper, const char *_Nonnull msg) {
-  if (looper)
-    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper",
-                        "thread %lx looper %p -- %s", pthread_self(), looper,
-                        msg);
-  else
-    __android_log_print(ANDROID_LOG_DEBUG, "CAndroidLooper", "thread %lx -- %s",
-                        pthread_self(), msg);
-}
