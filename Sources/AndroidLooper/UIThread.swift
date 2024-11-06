@@ -16,11 +16,12 @@
 
 import Android
 import CAndroidLooper
-import JavaKit
+
+private var _mainLooper: OpaquePointer? = nil
 
 public extension ALooper {
   static var sharedUIThreadLooper: Self {
-    Self(wrapping: CAndroidLooper_getMainLooper()!)
+    Self(wrapping: _mainLooper!)
   }
 }
 
@@ -45,12 +46,16 @@ public final actor UIThreadActor: GlobalActor {
   }
 }
 
-public extension JavaVirtualMachine {
-  static var mainEnvironment: JNIEnvironment? {
-    CAndroidLooper_getMainEnvironment()
+// call from your applications JNI_OnLoad
+public func AndroidLooper_initialize(_ reserved: UnsafeRawPointer?) {
+  if _mainLooper != nil {
+    ALooper_release(_mainLooper)
   }
+  _mainLooper = ALooper_forThread()
+  ALooper_acquire(_mainLooper)
 }
 
-public func _getJNIClassUsingMainEnvironment(_ className: String) -> jclass? {
-  CAndroidLooper_findClass(JavaVirtualMachine.mainEnvironment!, className)
+public func AndroidLooper_deinitialize(_ reserved: UnsafeRawPointer?) {
+  ALooper_release(_mainLooper)
+  _mainLooper = nil
 }

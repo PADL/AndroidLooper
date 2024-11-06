@@ -17,10 +17,6 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(
-      url: "https://github.com/PADL/swift-java",
-      branch: "lhoward/android"
-    ),
     .package(url: "https://github.com/apple/swift-system", from: "1.4.0"),
   ],
   targets: [
@@ -32,9 +28,9 @@ let package = Package(
       name: "AndroidLooper",
       dependencies: [
         "CAndroidLooper",
-        .product(name: "JavaKit", package: "swift-java"),
         .product(name: "SystemPackage", package: "swift-system"),
-      ]
+      ],
+      swiftSettings: [.swiftLanguageMode(.v5)]
     ),
   ]
 )
