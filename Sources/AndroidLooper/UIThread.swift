@@ -16,6 +16,7 @@
 
 import Android
 import CAndroidLooper
+import JavaKit
 
 public extension ALooper {
   static var sharedUIThreadLooper: Self {
@@ -41,5 +42,11 @@ public final actor UIThreadActor: GlobalActor {
 
   public nonisolated var unownedExecutor: UnownedSerialExecutor {
     Self.sharedUnownedExecutor
+  }
+}
+
+public extension JavaVirtualMachine {
+  var mainEnvironment: JNIEnvironment? {
+    CAndroidLooper_getMainEnvironment()
   }
 }
