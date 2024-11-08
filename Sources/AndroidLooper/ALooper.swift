@@ -26,8 +26,8 @@ private extension Duration {
 
 public struct ALooper: ~Copyable, @unchecked Sendable {
   public enum LooperError: Error {
-    case setBlockFailure
-    case removeBlockFailure
+    case addFdFailure
+    case removeFdFailure
     case preparationFailure(CInt)
     case pollTimeout
     case pollError
@@ -49,7 +49,6 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     public static let invalid = Events(rawValue: 1 << 4)
   }
 
-  public typealias Block = @Sendable () -> ()
   public typealias Callback = @convention(c) (CInt, CInt, UnsafeMutableRawPointer?) -> CInt
 
   private let _looper: OpaquePointer
@@ -78,7 +77,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
       callback,
       data
     ) != 1 {
-      throw LooperError.setBlockFailure
+      throw LooperError.addFdFailure
     }
   }
 
@@ -97,7 +96,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   public func remove(fd: FileDescriptor) throws -> Bool {
     let ret = ALooper_removeFd(_looper, fd.rawValue)
     if ret < 0 {
-      throw LooperError.removeBlockFailure
+      throw LooperError.removeFdFailure
     }
     return ret == 1
   }
