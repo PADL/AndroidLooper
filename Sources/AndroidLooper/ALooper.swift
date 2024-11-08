@@ -15,7 +15,6 @@
 //
 
 import Android
-import AndroidLogging
 import CAndroidLooper
 import SystemPackage
 
@@ -54,7 +53,6 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
   public typealias Callback = @convention(c) (CInt, CInt, UnsafeMutableRawPointer?) -> CInt
 
   private let _looper: OpaquePointer
-  private let _logger = Logger(subsystem: "AndroidLooper", category: "")
 
   public init(wrapping looper: OpaquePointer) {
     ALooper_acquire(looper)
@@ -130,9 +128,5 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
     default:
       return PollResult(ident: err, fd: outFd, events: Events(rawValue: outEvents), data: outData)
     }
-  }
-
-  func log(_ msg: String) {
-    _logger.debug(msg)
   }
 }
