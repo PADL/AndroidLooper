@@ -27,7 +27,7 @@ public extension ALooper {
 
 public final class UIThreadExecutor: AExecutor, @unchecked Sendable {
   public convenience init() {
-    self.init(looper: ALooper.sharedUIThreadLooper)!
+    try! self.init(looper: ALooper.sharedUIThreadLooper)
   }
 }
 

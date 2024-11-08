@@ -32,10 +32,10 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
   private let _queue = LockedState(initialState: [UnownedJob]())
 
   /// Initialize with Android Looper
-  public init?(looper: consuming ALooper) {
+  public init(looper: consuming ALooper) throws {
     let fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)
     if fd < 0 {
-      return nil
+      throw Errno(rawValue: errno)
     }
     _eventFd = FileDescriptor(rawValue: fd)
     _looper = looper
@@ -46,8 +46,8 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
         data: Unmanaged.passUnretained(self).toOpaque()
       )
     } catch {
-      try? _eventFd.close()
-      return nil
+      try _eventFd.close()
+      throw error
     }
   }
 
