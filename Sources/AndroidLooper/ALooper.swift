@@ -51,7 +51,7 @@ public struct ALooper: ~Copyable, @unchecked Sendable {
 
   public typealias Callback = @convention(c) (CInt, CInt, UnsafeMutableRawPointer?) -> CInt
 
-  private let _looper: OpaquePointer
+  let _looper: OpaquePointer
 
   public init(wrapping looper: OpaquePointer) {
     ALooper_acquire(looper)

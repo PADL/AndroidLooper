@@ -115,4 +115,15 @@ open class AExecutor: SerialExecutor, @unchecked Sendable {
   public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
     UnownedSerialExecutor(ordinary: self)
   }
+
+  /// Called by the Swift concurrency runtime as a fallback when it cannot prove
+  /// executor equivalence via pointer comparison (SE-0424). If this method
+  /// returns without trapping, the runtime treats the current context as
+  /// isolated to this executor.
+  public func checkIsolated() {
+    precondition(
+      ALooper_forThread() == _looper._looper,
+      "Incorrect actor executor assumption; expected to be executing on this executor's looper"
+    )
+  }
 }
