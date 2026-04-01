@@ -44,6 +44,27 @@ public final actor UIThreadActor: GlobalActor {
   public nonisolated var unownedExecutor: UnownedSerialExecutor {
     Self.sharedUnownedExecutor
   }
+
+  /// Execute `operation` synchronously, asserting that the current thread is
+  /// the Android UI thread (the same executor backing this global actor).
+  ///
+  /// This is the custom-global-actor equivalent of `MainActor.assumeIsolated`.
+  @_unavailableFromAsync(message: "express the closure as an ideally async let")
+  public static func assumeIsolated<T>(
+    _ operation: @UIThreadActor () throws -> T,
+    file: StaticString = #fileID,
+    line: UInt = #line
+  ) rethrows -> T {
+    precondition(
+      ALooper_forThread() == _mainLooper,
+      "Incorrect actor executor assumption; expected UI thread.",
+      file: file,
+      line: line
+    )
+    return try withoutActuallyEscaping(operation) {
+      try unsafeBitCast($0, to: (() throws -> T).self)()
+    }
+  }
 }
 
 // call from your applications JNI_OnLoad
