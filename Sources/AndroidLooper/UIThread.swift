@@ -65,6 +65,21 @@ public final actor UIThreadActor: GlobalActor {
       try unsafeBitCast($0, to: (() throws -> T).self)()
     }
   }
+
+  /// Execute `operation` on the Android UI thread, suspending until it
+  /// completes.
+  ///
+  /// This is the custom-global-actor equivalent of `MainActor.run`, which the
+  /// standard library special-cases for `MainActor` alone. Without it, code
+  /// shared between Darwin and Android cannot hop to the platform thread
+  /// through a single spelling.
+  @_alwaysEmitIntoClient
+  public static func run<T>(
+    resultType: T.Type = T.self,
+    body: @UIThreadActor @Sendable () throws -> T
+  ) async rethrows -> T {
+    try await body()
+  }
 }
 
 // call from your applications JNI_OnLoad
